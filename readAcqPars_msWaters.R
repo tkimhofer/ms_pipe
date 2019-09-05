@@ -4,6 +4,9 @@
 readWaters_acquisitonPars=function (WatersDataDir, plot=T) 
 {
   require(plyr)
+  require(ggplot2)
+  require(reshape2)
+  
   if(grepl('/$', WatersDataDir)){WatersDataDir=gsub('/$', '', WatersDataDir)}
   warnDef <- options("warn")$warn
   warnRead <- options(warn = -1)
@@ -89,6 +92,7 @@ readWaters_acquisitonPars=function (WatersDataDir, plot=T)
   
   if(plot==T){ # only the status files an acquisition finished date
     # get the time of acquisition and run order
+    out1$date=as.POSIXct(out1$date)
     out1$DateFinishedWeekday=weekdays(out1$date, abbreviate = T)
     out1$HoursFromStart=as.numeric(abs(min(out1$date)-out1$date)/60/60)
     out1$RunOrder=rank(as.numeric(out1$date-min(out1$date)), ties.method = 'min')
