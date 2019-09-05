@@ -29,10 +29,33 @@ files <- list.files(path, full.names = T, pattern="\\.mzXML")
 ### create dataframe of metadata information
 # include analytical run order, group memberships (eg., case, control, QC)
 # MODIFY THE FOLLOWING
+
+
 df <- data.frame(ID=basename(files), 
+                 fullN=files,
                  RunOrder=1:length(files),
-                 Group=rep(paste('Group', LETTERS[1:7]), each=4),
+                 #Group=rep(paste('Group', LETTERS[1:7]), each=4),
                  stringsAsFactors = F)
+
+df$Group='Sample'
+df$Group[grep('QC', files)]='QC'
+df$Group[grep('dil', files, ignore.case = T)]='Dilution'
+
+
+meta=readWaters_acquisitonPars(WatersDataDir = '/Volumes/Torben_1/DiaObesity/Diaobesity_Lipid_NEG.PRO/', plot=T)
+
+idx=match(gsub('01$', '', gsub('\\.CDF', '', basename(df$ID))), meta$`Acquired Name`)
+meta=meta[idx,]
+df$RunOrder=rank(meta$date)
+
+table(meta$`Inlet Method`)
+
+idx=!grepl('END', meta$`Inlet Method`)
+df=df[idx,]
+meta=meta[idx,]
+
+
+
 
 
 ### read-in data and perform peak picking using centwave method
