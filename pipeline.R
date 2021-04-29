@@ -41,8 +41,8 @@ df$Group='Sample'
 df$Group[grep('QC', files)]='QC'
 df$Group[grep('dil', files, ignore.case = T)]='Dilution'
 
-
-meta=readWaters_acquisitonPars(WatersDataDir = '/Volumes/Torben_1/DiaObesity/Diaobesity_Lipid_NEG.PRO/', plot=T)
+# if Waters instrumetation
+#meta=readWaters_acquisitonPars(WatersDataDir = 'path/to/folder', plot=T)
 
 idx=match(gsub('01$', '', gsub('\\.CDF', '', basename(df$ID))), meta$`Acquired Name`)
 meta=meta[idx,]
@@ -55,22 +55,23 @@ df=df[idx,]
 meta=meta[idx,]
 
 
+# start msbrowser and optimise centWave peak picking parameters
+msbrowser:::startApp()
 
 
-
-### read-in data and perform peak picking using centwave method
+### read-in data and perform peak picking using centwave
 # PARAMETRISATION SHOULD HAVE BEEN DONE BEFORE RUNNING THIS SCRIPT (this is very important!)
 raw_xcms <- xcmsSet(files, 
-                    phenoData=AnnotatedDataFrame(data=df),
+                    #phenoData=AnnotatedDataFrame(data=df),
                     method='centWave', 
                     
                     # always optimise the following three parameters for individual analytical runs
                     ppm=5, 
-                    peakwidth=c(3, 100),
+                    peakwidth=c(3, 25),
                     prefilter=c(3,100),
                     
                     # instrument-specific parameters (these do not require optimisation for each run and are fixed for a single instrument)
-                    mzdiff=-1,
+                    mzdiff=-1, 
                     noise=100,
                     snthresh=2,
                     
@@ -128,19 +129,19 @@ rsd_fct=function(x){ sd(x, na.rm=T) / mean(x, na.rm=T) }
 
 idx=which(df$Group='QC')
 f_id$rsd=apply(ds[idx,], 2, rsd_fct)
-# dilution filter
+
 
 ### dilution series filter
 idx=which(df$Group='Dilution')
 f_id$dilfilter=dil_fct(dsn[idx,], dilFs=c(1,2,4,8,16))
 
-# normalisation using pqn
-# library(MetaboMate)
+# normalisation using pqn (for urine)
+# library(metabom8)
 dsn=pqn(ds, plot=T, add.DilF='dilF')
 df$dilF=dilF
 
 ### PCA
-# library(MetaboMate)
+# library(metabom8)
 mod=pca(dsn, pc = 6)
 plotscores(mod, an=list(df$dilF, df$Group))
 
