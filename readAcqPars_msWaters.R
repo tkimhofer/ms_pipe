@@ -1,5 +1,5 @@
 # read in MS metadata from original Waters files (not CDFs)
-# WatersDataDir='/Volumes/Torben_1/DiaObesity/DiaObesity_Lipid_POS.PRO/'
+# WatersDataDir='/path/to/folder/'
 
 readWaters_acquisitonPars=function (WatersDataDir, plot=T) 
 {
